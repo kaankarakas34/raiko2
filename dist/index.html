@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11110f">
+  <meta name="description" content="Raiko; AI Call Agent, yapay zekâ ajanları ve iş otomasyonlarıyla müşteri iletişimini ve operasyonları birbirine bağlar.">
+  <title>Raiko — Yapay Zekâ Ajanları ve Otomasyon</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2311110f'/%3E%3Cpath d='M37 4 10 36h19l-5 24 30-36H35z' fill='%23ffc400'/%3E%3C/svg%3E">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+    :root{--ink:#11110f;--paper:#f4f2eb;--muted:#b8b8b1;--yellow:#ffc400;--lime:#e3f2a8;--line:#c8c7bd;--display:'Space Grotesk',Arial,sans-serif;--body:'DM Sans',Arial,sans-serif}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+    button,a{font:inherit}
+    a{color:inherit;text-decoration:none}
+    button{cursor:pointer}
+    ::selection{background:var(--yellow);color:var(--ink)}
+    .wrap{width:min(100% - 64px,1380px);margin-inline:auto}
+    .skip{position:absolute;left:12px;top:-60px;background:var(--yellow);padding:12px;z-index:20}.skip:focus{top:12px}
+    .header{position:relative;z-index:10;background:var(--ink);color:var(--paper)}
+    .nav{height:88px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+    .brand{display:flex;align-items:center;gap:10px;line-height:1}
+    .brand img{width:144px;height:auto;display:block}
+    .brand small{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#aaa99f;padding-left:12px;line-height:1.3;max-width:110px}
+    .links{display:flex;align-items:center;gap:34px}
+    .links a{font-size:14px;color:#c8c8c0;transition:color .2s}.links a:hover,.links a:focus-visible{color:var(--yellow)}
+    .menu{display:none;border:3px solid #77776e;background:transparent;color:var(--paper);border-radius:2px;padding:9px 12px}
+    .hero{background:var(--ink);color:var(--paper);min-height:710px;display:flex;align-items:stretch;overflow:hidden}
+    .hero .wrap{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(330px,.92fr);gap:5vw}
+    .hero-copy{padding:108px 0 115px;display:flex;flex-direction:column;align-items:flex-start}
+    .hero-kicker,.eyebrow{font-size:13px;font-weight:700;letter-spacing:.15em;text-transform:uppercase}
+    .hero-kicker{color:var(--yellow);margin:0 0 38px}
+    h1,h2,h3,p{margin-top:0}
+    h1,h2,h3{font-family:var(--display);letter-spacing:-.055em;line-height:1.03}
+    h1{font-size:clamp(60px,7.4vw,122px);font-weight:600;max-width:850px;margin-bottom:30px}
+    h1 em{color:var(--yellow);font-style:normal}
+    .hero-lede{font-size:clamp(18px,1.45vw,22px);line-height:1.5;color:#ccccc3;max-width:560px;margin-bottom:36px}
+    .text-link{display:inline-flex;align-items:center;gap:14px;font-weight:700;border-bottom:2px solid currentColor;padding-bottom:7px;transition:gap .2s}
+    .text-link:hover{gap:23px}.text-link:focus-visible,.links a:focus-visible,.menu:focus-visible,summary:focus-visible{outline:3px solid var(--yellow);outline-offset:5px}
+    .hero .text-link{color:var(--yellow)}
+    .hero-graphic{position:relative;min-height:620px;display:flex;align-items:center;justify-content:center}
+    .orbit{width:min(36vw,510px);aspect-ratio:1;border:3px solid #5f5d50;border-radius:50%;position:relative;display:grid;place-items:center}
+    .orbit:before,.orbit:after{content:"";position:absolute;border:3px solid #36362f;border-radius:50%;inset:15%}.orbit:after{inset:32%}
+    .core{width:33%;aspect-ratio:1;border-radius:50%;background:var(--yellow);color:var(--ink);display:grid;place-items:center;z-index:1;box-shadow:0 0 0 12px rgba(255,196,0,.09)}
+    .core svg{width:42%;height:42%}
+    .satellite{position:absolute;z-index:2;background:var(--paper);color:var(--ink);padding:11px 15px;font-size:13px;font-weight:700;line-height:1.15;box-shadow:4px 4px 0 var(--yellow)}
+    .satellite.one{top:7%;left:-2%}.satellite.two{right:-9%;top:34%}.satellite.three{bottom:8%;left:4%}
+    .hero-note{position:absolute;bottom:29px;right:0;color:#88887f;font-size:12px;letter-spacing:.07em;text-transform:uppercase}
+    .intro{padding:92px 0 105px}
+    .intro-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:8vw;align-items:start}
+    .eyebrow{color:#6a6a5f;margin-bottom:24px}
+    h2{font-size:clamp(42px,5vw,76px);font-weight:600;margin-bottom:24px}
+    .intro p:not(.eyebrow){font-size:clamp(18px,1.6vw,23px);line-height:1.48;color:#45453f;max-width:660px;margin:8px 0 0}
+    .solutions{background:var(--yellow);padding:96px 0 108px}
+    .solutions-head{display:grid;grid-template-columns:1fr 1fr;gap:8vw;align-items:end;margin-bottom:62px}
+    .solutions-head p:not(.eyebrow){font-size:19px;max-width:460px;color:#33312a;margin-bottom:5px}
+    .solution-list{counter-reset:solution}
+    .solution{display:grid;grid-template-columns:100px minmax(0,1fr) minmax(260px,430px);gap:28px;align-items:start;padding:36px 0}
+    .solution-num{font-size:15px;font-weight:700;padding-top:12px}
+    .solution h3{font-size:clamp(33px,3.5vw,55px);margin:0}
+    .solution p{font-size:17px;line-height:1.55;margin:9px 0 0;max-width:430px}
+    .systems{padding:115px 0 125px}
+    .systems-layout{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:8vw}
+    .systems h2{max-width:560px}
+    .systems-lede{font-size:20px;color:#52524b;max-width:530px}
+    .stack{display:grid;gap:18px;align-self:start}
+    .stack-item{display:grid;grid-template-columns:66px 1fr;gap:25px;padding:12px 0}
+    .stack-item span{font-family:var(--display);font-size:28px;color:#79796e}
+    .stack-item h3{font-size:23px;letter-spacing:-.035em;margin:2px 0 8px}
+    .stack-item p{color:#595950;margin:0;max-width:500px}
+    .usecases{background:#deddd4;padding:105px 0 120px}
+    .usecases h2{max-width:770px}
+    .use-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:70px 90px;margin-top:76px}
+    .use-grid article{padding-top:18px;border-top:3px solid var(--ink)}
+    .use-grid .index{font-size:13px;font-weight:700;color:#696961}
+    .use-grid h3{font-size:31px;margin:36px 0 13px;letter-spacing:-.045em}
+    .use-grid p{font-size:16px;color:#4c4c45;max-width:320px}
+    .faq{padding:110px 0 130px}
+    .faq-layout{display:grid;grid-template-columns:.75fr 1.25fr;gap:8vw}
+    .faq h2{max-width:450px}
+    details{margin-bottom:8px}
+    summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 0;font-family:var(--display);font-size:21px;font-weight:600;line-height:1.25;cursor:pointer}
+    summary::-webkit-details-marker{display:none}
+    summary:after{content:'+';font-family:var(--body);font-weight:400;font-size:29px;line-height:1;flex:none}
+    details[open] summary:after{content:'−'}
+    details p{max-width:620px;color:#56564e;margin:0 0 24px;font-size:16px}
+    .outro{background:var(--ink);color:var(--paper);padding:90px 0 35px}
+    .outro-grid{display:flex;justify-content:space-between;gap:40px;align-items:end;padding-bottom:115px}
+    .outro h2{font-size:clamp(50px,7vw,103px);max-width:920px;margin:0}
+    .outro h2 span{color:var(--yellow)}
+    .outro p{font-size:18px;color:#c6c6bd;max-width:290px;margin:0 0 12px}
+    .footer{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-top:28px;color:#9c9c92;font-size:13px}
+    .footer img{width:120px;display:block}
+    @media(max-width:1000px){.hero .wrap{grid-template-columns:1fr 380px;gap:0}.hero-graphic{min-height:560px}.orbit{width:340px}.solution{grid-template-columns:60px 1fr 300px}.use-grid{gap:45px 28px}}
+    @media(max-width:760px){.wrap{width:min(100% - 36px,1380px)}.nav{height:74px}.brand img{width:118px}.brand small{font-size:9px}.menu{display:block}.links{display:none;position:absolute;top:74px;left:0;right:0;background:#1d1d19;padding:24px 18px 32px;flex-direction:column;align-items:stretch;gap:0}.links.open{display:flex}.links a{font-size:18px;padding:13px 0}.hero{min-height:0}.hero .wrap{grid-template-columns:1fr}.hero-copy{padding:82px 0 42px}.hero-kicker{margin-bottom:28px}h1{font-size:clamp(57px,11.5vw,84px)}.hero-graphic{min-height:330px;justify-content:center}.orbit{width:270px}.satellite{font-size:10px;padding:8px 10px}.satellite.one{left:-5%}.satellite.two{right:-10%}.satellite.three{bottom:4%;left:0}.hero-note{bottom:0;right:0;font-size:10px}.intro,.solutions,.systems,.usecases,.faq{padding:76px 0 86px}.intro-grid,.solutions-head,.systems-layout,.faq-layout{grid-template-columns:1fr;gap:14px}.solutions-head{margin-bottom:35px}.solution{grid-template-columns:42px 1fr;gap:10px;padding:28px 0}.solution p{grid-column:2;margin:0}.solution-num{padding-top:5px}.solution h3{font-size:36px}.use-grid{grid-template-columns:1fr 1fr;gap:44px 24px;margin-top:50px}.use-grid h3{margin-top:22px;font-size:27px}.outro-grid{display:block;padding-bottom:75px}.outro p{margin-top:35px;max-width:420px}.footer{align-items:flex-start}}
+    @media(max-width:500px){.use-grid{grid-template-columns:1fr}.use-grid article{padding-top:13px}.use-grid h3{margin-top:18px}.use-grid p{max-width:none}.hero-graphic{min-height:300px}.orbit{width:240px}.satellite.two{right:-4%}.footer{flex-direction:column}.outro h2{font-size:54px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#icerik">İçeriğe geç</a>
+  <header class="header">
+    <div class="wrap nav">
+      <a class="brand" href="#ust" aria-label="Raiko ana sayfa"><img src="raiko-logo.webp" alt="Raiko" width="144" height="48"><small>AI Techs</small></a>
+      <button class="menu" type="button" aria-expanded="false" aria-controls="nav-links">Menü</button>
+      <nav class="links" id="nav-links" aria-label="Ana menü">
+        <a href="#cozumler">Çözümler</a><a href="#sistemler">Nasıl çalışır?</a><a href="#kullanim">Kullanım alanları</a><a href="#sorular">Sık sorulanlar</a>
+      </nav>
+    </div>
+  </header>
+  <main id="icerik">
+    <section class="hero" id="ust" aria-labelledby="hero-title">
+      <div class="wrap">
+        <div class="hero-copy">
+          <p class="hero-kicker">Raiko / yapay zekâ sistemleri</p>
+          <h1 id="hero-title">Her konuşma, <em>doğru aksiyona</em> dönüşsün.</h1>
+          <p class="hero-lede">AI Call Agent, akıllı sohbet ajanları ve iş otomasyonları. Müşteri iletişimi ile operasyonlarınız aynı akışta çalışsın.</p>
+          <a class="text-link" href="#cozumler">Çözümleri keşfet <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="hero-graphic" role="img" aria-label="Raiko merkezde; çağrıları, mesajları ve iş akışlarını birbirine bağlayan şema">
+          <div class="orbit"><div class="core"><svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M7 28c5-10 9-10 14 0s9 10 14 0 6-10 8-10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M7 20c5-10 9-10 14 0s9 10 14 0 6-10 8-10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></div><span class="satellite one">Çağrılar</span><span class="satellite two">Mesajlar</span><span class="satellite three">İş akışları</span></div>
+          <span class="hero-note">Birbirine bağlı sistemler</span>
+        </div>
+      </div>
+    </section>
+    <section class="intro" aria-labelledby="intro-title">
+      <div class="wrap intro-grid"><div><p class="eyebrow">Raiko nedir?</p><h2 id="intro-title">İletişimden operasyona uzanan yapay zekâ.</h2></div><p>Raiko, müşteri sorularını yanıtlayan ve gerektiğinde ilgili iş adımını başlatan yapay zekâ ajanları kurar. Web siteniz, bilgi kaynaklarınız ve mevcut iş sistemleriniz birlikte çalışır; ekibiniz de daha karmaşık konulara odaklanır.</p></div>
+    </section>
+    <section class="solutions" id="cozumler" aria-labelledby="solutions-title">
+      <div class="wrap"><div class="solutions-head"><div><p class="eyebrow">Çözümler</p><h2 id="solutions-title">İşinize uyum sağlayan ajanlar.</h2></div><p>Tek bir temas noktasından başlayın veya müşteri yolculuğunun tamamını birbirine bağlayın.</p></div>
+        <div class="solution-list">
+          <article class="solution"><span class="solution-num">01 /</span><h3>AI Call Agent</h3><p>Gelen çağrıları karşılar, arayanın ihtiyacını anlar, sık soruları yanıtlar, potansiyel müşterileri ön değerlendirir ve uygun durumda görüşme veya yönlendirme akışını başlatır.</p></article>
+          <article class="solution"><span class="solution-num">02 /</span><h3>AI Chatbot</h3><p>Web ve mesajlaşma kanallarındaki görüşmeleri yönetir. Ziyaretçileri karşılar, bilgi verir ve ihtiyaç duyulan noktada ilgili ekibe aktarır.</p></article>
+          <article class="solution"><span class="solution-num">03 /</span><h3>AI otomasyonlar</h3><p>Tekrarlayan pazarlama, destek ve operasyon adımlarını bir iş akışına dönüştürür. Bilginin sistemler arasında daha düzenli ilerlemesine yardımcı olur.</p></article>
+          <article class="solution"><span class="solution-num">04 /</span><h3>AI agent sistemleri</h3><p>İş süreçlerinize göre kurgulanan özel ajanlar; bilgiye erişim, karar destek ve belirli görevleri yürütme adımlarını bir araya getirir.</p></article>
+        </div>
+      </div>
+    </section>
+    <section class="systems" id="sistemler" aria-labelledby="systems-title">
+      <div class="wrap systems-layout"><div><p class="eyebrow">Bağlantılı çalışma</p><h2 id="systems-title">Bildiklerinizi işinize bağlar.</h2><p class="systems-lede">Raiko ajanları, şirketinizin kendi içerik ve süreçleri etrafında tasarlanır. Böylece yanıtlar yalnızca genel bilgiden ibaret kalmaz.</p></div><div class="stack">
+        <div class="stack-item"><span>01</span><div><h3>Bilgi kaynakları</h3><p>Web sitesi, bilgi tabanı, veri tabloları ve dokümanlar görüşmeler için kaynak oluşturur.</p></div></div>
+        <div class="stack-item"><span>02</span><div><h3>İş sistemleri</h3><p>CRM, ERP, yardım masası ve özel uygulamalarla kurulacak bağlantılar, gerekli bağlamı aynı akışa taşır.</p></div></div>
+        <div class="stack-item"><span>03</span><div><h3>İnsana devir</h3><p>Ajanın tamamlayamadığı veya insan kararı gerektiren konular ilgili ekip üyelerine yönlendirilir.</p></div></div>
+        <div class="stack-item"><span>04</span><div><h3>Sürekli iyileştirme</h3><p>Senaryolar, bilgi kaynakları ve yönlendirme kuralları işletmenin ihtiyaçlarına göre güncellenir.</p></div></div>
+      </div></div>
+    </section>
+    <section class="usecases" id="kullanim" aria-labelledby="usecases-title">
+      <div class="wrap"><p class="eyebrow">Kullanım alanları</p><h2 id="usecases-title">Müşteriye yakın, ekibinize yardımcı.</h2><div class="use-grid">
+        <article><span class="index">01 / MÜŞTERİ DENEYİMİ</span><h3>Müşteri desteği</h3><p>Tekrarlayan soruları yanıtlayın, talepleri sınıflandırın ve uygun ekibe aktarın.</p></article>
+        <article><span class="index">02 / BÜYÜME</span><h3>Potansiyel müşteriler</h3><p>İlgilenen ziyaretçilerle konuşun, ihtiyaçlarını anlayın ve sonraki adımı belirleyin.</p></article>
+        <article><span class="index">03 / İÇ OPERASYON</span><h3>İç destek</h3><p>Çalışanların BT, insan kaynakları ve süreç sorularına bilgi kaynaklarınızdan yanıt verin.</p></article>
+        <article><span class="index">04 / E-TİCARET</span><h3>Sipariş süreçleri</h3><p>Sipariş durumu, iade ve ürün sorularında müşteri iletişimini düzenleyin.</p></article>
+        <article><span class="index">05 / ÇOK DİLLİ HİZMET</span><h3>Global operasyon</h3><p>Farklı dillerde gelen taleplere tutarlı bir deneyim sunan akışlar tasarlayın.</p></article>
+        <article><span class="index">06 / ÖZEL İŞ AKIŞI</span><h3>Size özel senaryolar</h3><p>Tekrarlanan görevleri kendi süreçlerinize göre tanımlanmış ajanlarla yönetin.</p></article>
+      </div></div>
+    </section>
+    <section class="faq" id="sorular" aria-labelledby="faq-title">
+      <div class="wrap faq-layout"><div><p class="eyebrow">Sık sorulanlar</p><h2 id="faq-title">Merak edilenler.</h2></div><div>
+        <details><summary>Raiko tam olarak ne yapar?</summary><p>Raiko, müşteri iletişimi ve iş süreçleri için yapay zekâ ajanları geliştirir. Çağrı ve mesajları karşılayan ajanlar ile belirli görevleri yürüten otomasyonlar bu kapsamın içindedir.</p></details>
+        <details><summary>AI Call Agent nasıl çalışır?</summary><p>Arayanın amacını anlamak, ilgili bilgiye göre yanıt vermek ve tanımlanan akışa göre yönlendirmek için tasarlanır. Gerektiğinde görüşme bir ekip üyesine aktarılabilir.</p></details>
+        <details><summary>Mevcut sistemlerimizle çalışabilir mi?</summary><p>Raiko'nun mevcut sitesinde CRM, ERP, yardım masası, veri tabanı ve web içerikleriyle entegrasyon seçenekleri anlatılıyor. Hangi bağlantıların kurulacağı, kullanılan sistemlere ve ihtiyaç duyulan senaryoya göre belirlenir.</p></details>
+        <details><summary>Hangi kullanım alanlarına uyarlanabilir?</summary><p>Müşteri desteği, potansiyel müşteri toplama, iç destek, e-ticaret süreçleri ve özel iş akışları için çözümler tasarlanabilir.</p></details>
+      </div></div>
+    </section>
+    <section class="outro" aria-labelledby="outro-title"><div class="wrap"><div class="outro-grid"><h2 id="outro-title">Daha akıcı bir iş günü <span>mümkün.</span></h2><p>Konuşmaları, bilgiyi ve süreçleri aynı doğrultuda buluşturan yapay zekâ sistemleri.</p></div><footer class="footer"><img src="raiko-logo.webp" alt="Raiko" width="120" height="40"><span>© <span id="year">2026</span> Raiko. Tüm hakları saklıdır.</span></footer></div></section>
+  </main>
+  <script>
+    const menu=document.querySelector('.menu');
+    const links=document.querySelector('.links');
+    menu.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));links.classList.toggle('open',open)});
+    links.addEventListener('click',e=>{if(e.target.closest('a')){menu.setAttribute('aria-expanded','false');links.classList.remove('open')}});
+    document.getElementById('year').textContent=new Date().getFullYear();
+  </script>
+</body>
+</html>
