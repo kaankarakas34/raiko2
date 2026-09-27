@@ -1,0 +1,19 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "python build_site.py && npm run build:hero",
+    "build:hero": "esbuild src/hero.tsx --bundle --minify --format=esm --splitting --outdir=dist --entry-names=hero --chunk-names=chunks/[name]-[hash]",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@splinetool/react-spline": "^4.1.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
+  }
+}

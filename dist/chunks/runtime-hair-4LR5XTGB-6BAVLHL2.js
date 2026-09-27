@@ -1,0 +1,1 @@
+import{k as m}from"./chunk-PPOTHS6I.js";import"./chunk-IAZLCSEN.js";import"./chunk-4O52PGZV.js";import"./chunk-Q365EAH6.js";import"./chunk-4QTJWMXQ.js";import{a as r,d as i}from"./chunk-QANAO5EL.js";import"./chunk-O6EI5WA6.js";import"./chunk-QHCT2LP6.js";import"./chunk-4EVPCHLJ.js";import"./chunk-6DHFEWGX.js";i("Hair",(o,p,t)=>new m(o,p,t)),r("hair");
