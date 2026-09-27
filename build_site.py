@@ -299,9 +299,9 @@ def page_body(data):
     related = "".join(f'<a href="{href}">{label}<span aria-hidden="true">↗</span></a>' for href, label in data["related"])
     example_title, example_copy = data["example"]
     return f'''
-    <section class="detail-hero"><div class="wrap"><a class="back-link" href="/">← Ana sayfa</a><p class="hero-kicker">{data["category"]}</p><h1>{data["title"]}</h1><p class="detail-summary">{data["summary"]}</p></div></section>
+    <section class="detail-hero"><div class="wrap"><a class="back-link" href="/">← Ana sayfa</a><p class="hero-kicker">{data["category"]}</p><h1>{data["title"]}</h1><p class="detail-summary">{data["summary"]}</p><a class="raiko-button raiko-button--shine" href="#is-akisi" aria-label="İş akışını gör"><span class="raiko-button__surface">İş akışını gör <span aria-hidden="true">↘</span></span></a></div></section>
     <section class="detail-lead"><div class="wrap detail-columns"><p class="eyebrow">Yaklaşım</p><p>{data["lead"]}</p></div></section>
-    <section class="detail-process"><div class="wrap detail-columns"><div><p class="eyebrow">İş akışı</p><h2>Nasıl çalışır?</h2></div><ol>{steps}</ol></div></section>
+    <section class="detail-process" id="is-akisi"><div class="wrap detail-columns"><div><p class="eyebrow">İş akışı</p><h2>Nasıl çalışır?</h2></div><ol>{steps}</ol></div></section>
     {sections}
     <section class="example-band"><div class="wrap detail-columns"><p class="eyebrow">{example_title}</p><p>{example_copy}</p></div></section>
     <section class="detail-faq"><div class="wrap detail-columns"><div><p class="eyebrow">Sık sorulanlar</p><h2>Açık yanıtlar.</h2></div><div>{questions}</div></div></section>
