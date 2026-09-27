@@ -55,6 +55,22 @@
     .core svg{width:42%;height:42%}
     .satellite{position:absolute;z-index:2;background:var(--paper);color:var(--ink);padding:11px 15px;font-size:13px;font-weight:700;line-height:1.15;box-shadow:4px 4px 0 var(--yellow)}
     .satellite.one{top:7%;left:-2%}.satellite.two{right:-9%;top:34%}.satellite.three{bottom:8%;left:4%}
+    .ai-ecosystem{overflow:hidden;background:#1b1b18;color:var(--paper);padding:54px 0 66px;border-top:1px solid #33332c}
+    .ai-ecosystem-heading{display:flex;align-items:end;justify-content:space-between;gap:30px;margin-bottom:34px}
+    .ai-ecosystem-heading .eyebrow{color:var(--yellow);margin-bottom:15px}
+    .ai-ecosystem-heading h2{font-size:clamp(30px,3vw,48px);font-weight:600;margin:0;letter-spacing:-.045em}
+    .ai-ecosystem-heading>p{color:#aead9f;font-size:15px;margin:0 0 4px;white-space:nowrap}
+    .ai-marquee{overflow:hidden;mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent)}
+    .ai-marquee-track{display:flex;width:max-content;animation:ai-marquee 100s linear infinite}
+    .ai-marquee:hover .ai-marquee-track,.ai-marquee:focus-within .ai-marquee-track{animation-play-state:paused}
+    .ai-marquee-group{display:flex;align-items:center;gap:12px;padding-right:12px;flex:none}
+    .ai-logo{display:inline-flex;align-items:center;gap:12px;flex:none;height:66px;min-width:142px;padding:10px 18px 10px 10px;border:1px solid #3a3a32;border-radius:12px;background:#252520;color:#f4f2eb;font-size:15px;font-weight:700;white-space:nowrap;transition:background .2s,border-color .2s,transform .2s}
+    a.ai-logo:hover{background:#303029;border-color:#786300;transform:translateY(-2px)}
+    a.ai-logo:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
+    .ai-logo-mark{position:relative;display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:9px;background:#f4f2eb;color:#24231e;font-family:var(--display);font-weight:700;font-size:19px;overflow:hidden}
+    .ai-logo-mark img{position:absolute;inset:4px;width:36px;height:36px;object-fit:contain}
+    .ai-logo-mark img[hidden]{display:none}
+    @keyframes ai-marquee{to{transform:translateX(-50%)}}
     .intro{padding:92px 0 105px}
     .intro-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:8vw;align-items:start}
     .eyebrow{color:#6a6a5f;margin-bottom:24px}
@@ -193,3 +209,5 @@
       .detail-process ol{margin-top:30px}.related{padding:62px 0}.resource-index .wrap{display:grid;gap:14px}.site-footer .footer{align-items:flex-start}
     }
     @media(prefers-reduced-motion:reduce){.raiko-button::before{animation:none;background:var(--yellow)}.raiko-button:hover,.raiko-button:active{transform:none}}
+    @media(max-width:760px){.ai-ecosystem{padding:46px 0 54px}.ai-ecosystem-heading{display:block;margin-bottom:27px}.ai-ecosystem-heading h2{font-size:clamp(29px,7vw,40px)}.ai-ecosystem-heading>p{margin-top:13px;white-space:normal}.ai-logo{height:60px;min-width:130px;font-size:14px}.ai-logo-mark{width:40px;height:40px}.ai-logo-mark img{inset:4px;width:32px;height:32px}}
+    @media(prefers-reduced-motion:reduce){.ai-marquee{overflow-x:auto;mask-image:none;scrollbar-color:var(--yellow) #2a2a25}.ai-marquee-track{animation:none}.ai-marquee-group[aria-hidden="true"]{display:none}}

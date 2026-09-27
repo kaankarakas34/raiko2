@@ -325,11 +325,62 @@ def resources_body():
     ''' + footer()
 
 
+ai_platforms = [
+    ("ChatGPT", "https://chatgpt.com/", "https://cdn.oaistatic.com/assets/favicon-miwirzcw.ico"),
+    ("Gemini", "https://gemini.google.com/", "https://www.gstatic.com/images/branding/product/2x/gemini_48dp.png"),
+    ("Perplexity", "https://www.perplexity.ai/", "https://www.perplexity.ai/favicon.svg"),
+    ("Hugging Face", "https://huggingface.co/", "https://huggingface.co/favicon.ico"),
+    ("Claude", "https://claude.ai/", "https://www.anthropic.com/favicon.ico"),
+    ("DeepSeek", "https://www.deepseek.com/", "https://www.deepseek.com/favicon.ico"),
+    ("Kimi", "https://www.kimi.ai/", "https://www.kimi.ai/favicon.ico"),
+    ("Manus", "https://manus.im/", "https://manus.im/icon.svg?icon.2kbcs13ndm9it.svg"),
+    ("Grok", "https://grok.com/", "https://grok.com/images/favicon.svg"),
+    ("Qwen", "https://qwen.ai/", "https://img.alicdn.com/imgextra/i4/O1CN01OXv3EM1FN8t9W4P79_!!6000000000474-2-tps-80-80.png"),
+    ("Meta AI", "https://www.meta.ai/", "https://www.meta.ai/favicon.ico"),
+    ("Copilot", "https://copilot.microsoft.com/", "https://copilot.microsoft.com/static/cmc/favicon.svg"),
+    ("Muse", "https://ai.meta.com/muse/", "https://static.xx.fbcdn.net/rsrc.php/yf/r/-7pQO6hUGK_.svg"),
+    ("Agent Zero", "https://www.agent-zero.ai/", "https://www.agent-zero.ai/res/favicon_round.png"),
+    ("Cursor", "https://cursor.com/", "https://cursor.com/marketing-static/favicon.svg"),
+    ("Mistral", "https://mistral.ai/", "https://mistral.ai/favicon.ico"),
+    ("Cohere", "https://cohere.com/", "https://cohere.com/apple-touch-icon.png"),
+    ("Runway", "https://runway.com/", "https://runway.com/icon.png"),
+    ("Suno", "https://suno.com/", "https://cdn-o.suno.com/favicon-192x192.png"),
+    ("ElevenLabs", "https://elevenlabs.io/", "https://elevenlabs.io/icon.svg"),
+    ("Stability AI", "https://stability.ai/", "https://images.squarespace-cdn.com/content/v1/6213c340453c3f502425776e/804f0e8b-0028-4262-a8b0-b9f1c5de72c0/favicon.ico?format=100w"),
+    ("Adobe Firefly", "https://firefly.adobe.com/", "https://firefly.adobe.com/releases/cba597300be0f8eb20d4095720ff38a1e910dc43/assets/fi_touch_icon_80-CYMZMllL.png"),
+    ("Notion AI", "https://www.notion.so/product/ai", "https://www.notion.com/front-static/logo-ios.png"),
+    ("Poe", "https://poe.com/", "https://poe.com/favicon.ico"),
+    ("Gamma", "https://gamma.app/", "https://static.gamma.app/favicons/favicon_dark.svg"),
+    ("Ideogram", "https://ideogram.ai/", "https://ideogram.ai/favicon.ico"),
+    ("Pika", "https://pika.art/", "https://pika.art/icon.svg?icon.3bty87qirfeg8.svg"),
+    ("Luma", "https://lumalabs.ai/", "https://lumalabs.ai/favicons/favicon-black.ico"),
+    ("Genspark", "https://www.genspark.ai/", "https://www.genspark.ai/favicon.ico"),
+    ("Bolt", "https://bolt.new/", "https://bolt.new/static/favicon-96x96.png"),
+    ("v0", "https://v0.app/", "https://v0.app/assets/icon.svg"),
+]
+
+
+def ai_slider():
+    def card(name, website, logo, duplicate=False):
+        icon = f'<span class="ai-logo-mark"><span aria-hidden="true">{escape(name[0])}</span><img src="{escape(logo, quote=True)}" alt="" width="36" height="36" decoding="async"></span>'
+        contents = f'{icon}<span class="ai-logo-name">{escape(name)}</span>'
+        if duplicate:
+            return f'<span class="ai-logo">{contents}</span>'
+        return f'<a class="ai-logo" href="{escape(website, quote=True)}" target="_blank" rel="noopener noreferrer" aria-label="{escape(name)} resmî sitesi (yeni sekme)">{contents}</a>'
+
+    first = "".join(card(*platform) for platform in ai_platforms)
+    second = "".join(card(*platform, duplicate=True) for platform in ai_platforms)
+    return f'''<section class="ai-ecosystem" aria-labelledby="ai-ecosystem-title">
+      <div class="wrap ai-ecosystem-heading"><div><p class="eyebrow">Yapay zekâ ekosistemi</p><h2 id="ai-ecosystem-title">Yapay zekâ dünyasından seçkiler.</h2></div><p>Öne çıkan platformları keşfedin.</p></div>
+      <div class="ai-marquee" aria-label="Yapay zekâ platformları"><div class="ai-marquee-track"><div class="ai-marquee-group">{first}</div><div class="ai-marquee-group" aria-hidden="true">{second}</div></div></div>
+    </section>'''
+
+
 def main():
     DIST.mkdir(exist_ok=True)
     (DIST / "style.css").write_text((SRC / "style.css").read_text(encoding="utf-8"), encoding="utf-8")
     (DIST / "site.js").write_text((SRC / "site.js").read_text(encoding="utf-8"), encoding="utf-8")
-    home = (SRC / "home.html").read_text(encoding="utf-8")
+    home = (SRC / "home.html").read_text(encoding="utf-8").replace("{{AI_SLIDER}}", ai_slider())
     (DIST / "index.html").write_text(shell(
         "Raiko | Yapay zekâ çalışanları ve otonom satış sistemleri",
         "Raiko; AI Call Agent, AI Chatbot, akıllı CRM, B2B outreach ve yapay zekâ otomasyonlarıyla müşteri iletişimini ve satış süreçlerini birleştirir.",

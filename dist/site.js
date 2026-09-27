@@ -61,6 +61,12 @@ document.addEventListener('keydown', (event) => {
 
 for (const year of document.querySelectorAll('.year')) year.textContent = new Date().getFullYear();
 
+for (const logo of document.querySelectorAll('.ai-logo-mark img')) {
+  const hideBrokenLogo = () => { logo.hidden = true; };
+  logo.addEventListener('error', hideBrokenLogo, { once: true });
+  if (logo.complete && logo.naturalWidth === 0) hideBrokenLogo();
+}
+
 const heroScene = document.querySelector('.hero-scene');
 if (heroScene) {
   const interactiveScene = window.matchMedia('(min-width: 761px) and (prefers-reduced-motion: no-preference)');
