@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
     :root{--ink:#11110f;--paper:#f4f2eb;--muted:#b8b8b1;--yellow:#ffc400;--lime:#e3f2a8;--line:#c8c7bd;--display:'Space Grotesk',Arial,sans-serif;--body:'DM Sans',Arial,sans-serif}
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
