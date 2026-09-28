@@ -1,9 +1,14 @@
 from html import escape
+import json
 from pathlib import Path
+from urllib.parse import quote
+from xml.sax.saxutils import escape as xml_escape
+from guides import GUIDES
 
 ROOT = Path(__file__).parent
 SRC = ROOT / "src"
 DIST = ROOT / "dist"
+SITE_URL = "https://www.raiko.tech"
 
 
 def item(href, title, description):
@@ -42,6 +47,8 @@ menus = {
                 ("/saglik-turizmi/", "Sağlık turizmi", "Çok dilli ilk temas ve randevu"),
                 ("/ihracat-uretim/", "İhracat ve üretim", "Hedef şirket araştırması ve takip"),
                 ("/b2b-hizmetler/", "B2B hizmetler", "Talep toplama ve satış süreci"),
+                ("/emlak/", "Emlak", "İlan talepleri ve portföy takibi"),
+                ("/otomotiv/", "Otomotiv", "Araç talepleri ve test sürüşü"),
             ]),
         ],
     },
@@ -50,14 +57,16 @@ menus = {
         "intro": "Karar vermeden önce sorulması gerekenler.",
         "columns": [
             ("Rehberler", [
-                ("/rehberler/#call-agent", "AI Call Agent nedir?", "Kullanım ve kurulum adımları"),
-                ("/rehberler/#ai-sdr", "AI SDR nedir?", "Satış sürecindeki rolü"),
+                ("/rehberler/ai-call-agent-nedir/", "AI Call Agent nedir?", "Kullanım ve kurulum adımları"),
+                ("/rehberler/ai-sdr-nedir/", "AI SDR nedir?", "Satış sürecindeki rolü"),
             ]),
             ("Karşılaştırmalar", [
-                ("/rehberler/#karsilastirma", "Chatbot, ajan, canlı destek", "Hangi işi kim üstlenmeli?"),
+                ("/rehberler/chatbot-ai-agent-canli-destek/", "Chatbot, ajan, canlı destek", "Hangi işi kim üstlenmeli?"),
             ]),
             ("Kullanım senaryoları", [
-                ("/rehberler/#ornek-akis", "Uçtan uca örnek akış", "Telefon, CRM ve satış takibi"),
+                ("/rehberler/telefon-crm-satis-takibi/", "Uçtan uca örnek akış", "Telefon, CRM ve satış takibi"),
+                ("/rehberler/emlak-yapay-zeka-asistani/", "Emlakta AI asistan", "İlan talebinden gösterime"),
+                ("/rehberler/otomotiv-test-surusu-takibi/", "Otomotivde AI asistan", "Araç talebinden test sürüşüne"),
             ]),
         ],
     },
@@ -93,6 +102,21 @@ def header():
 def shell(title, description, main, path="/"):
     escaped_title = escape(title)
     escaped_description = escape(description)
+    canonical = SITE_URL + path
+    schema = ""
+    if path == "/":
+        schema = '<script type="application/ld+json">' + json.dumps({
+            "@context": "https://schema.org", "@type": "Organization",
+            "name": "Raiko", "url": SITE_URL, "logo": SITE_URL + "/raiko-logo.webp",
+        }, ensure_ascii=False) + "</script>"
+    elif path.strip("/") in pages:
+        schema = '<script type="application/ld+json">' + json.dumps({
+            "@context": "https://schema.org", "@type": "Service",
+            "name": pages[path.strip("/")]["title"],
+            "description": pages[path.strip("/")]["summary"],
+            "url": canonical,
+            "provider": {"@type": "Organization", "name": "Raiko", "url": SITE_URL},
+        }, ensure_ascii=False) + "</script>"
     return f'''<!doctype html>
 <html lang="tr">
 <head>
@@ -100,17 +124,33 @@ def shell(title, description, main, path="/"):
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#11110f">
   <meta name="description" content="{escaped_description}">
+  <link rel="canonical" href="{canonical}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Raiko">
+  <meta property="og:locale" content="tr_TR">
+  <meta property="og:title" content="{escaped_title}">
+  <meta property="og:description" content="{escaped_description}">
+  <meta property="og:url" content="{canonical}">
+  <meta property="og:image" content="{SITE_URL}/social-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
   <title>{escaped_title}</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2311110f'/%3E%3Cpath d='M37 4 10 36h19l-5 24 30-36H35z' fill='%23ffc400'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/style.css">
   <script src="/site.js" defer></script>
+  {schema}
 </head>
-<body>
+<body id="ust">
   <a class="skip" href="#icerik">İçeriğe geç</a>
   {header()}
   <main id="icerik">{main}</main>
 </body>
 </html>'''
+
+
+def contact_link(subject):
+    return "mailto:info@raiko.ai?subject=" + quote(subject)
 
 
 pages = {
@@ -289,6 +329,102 @@ sectors = {
         "questions": [("Satış temsilcisi hangi noktada devreye girer?", "Görüşme karmaşıklaştığında, özel teklif gerektiğinde veya ilişki yönetimi önem kazandığında insan devri tasarlanır.")],
         "related": [("/akilli-crm/", "Akıllı CRM"), ("/ai-satis-ajani/", "AI Satış Ajanı")],
     },
+    "emlak": {
+        "category": "Sektörler / Emlak",
+        "title": "Emlak danışmanları için yapay zekâ müşteri asistanı",
+        "summary": "İlan, telefon ve WhatsApp üzerinden gelen alıcı veya kiracı taleplerini düzenleyen; portföy ilgisini ve görüşme takibini ekip için görünür kılan AI akışları.",
+        "lead": "Emlakta aynı ilan için farklı kanallardan gelen sorular, hızlı ve doğru geri dönüş gerektirir. Ajan, onaylı ilan bilgisiyle ilk soruları karşılayabilir; müşterinin aradığı özellikleri ve iletişim tercihini danışmana aktarabilir.",
+        "steps": [
+            ("Talebi toplar", "İlan kaynağını, ilgili mülkü ve alım veya kiralama niyetini kaydeder."),
+            ("İhtiyacı netleştirir", "Konum, bütçe, oda sayısı ve uygun görüşme zamanı gibi bilgileri sorar."),
+            ("Danışmana devreder", "Talebi ilgili portföyle eşleştirir; gösterim isteğini ve sonraki adımı CRM'de takip edilecek hâle getirir."),
+        ],
+        "sections": [
+            ("ilan-bilgisi", "Güncel portföy bilgisi", "Fiyat, müsaitlik ve ilan durumu değişebilir. Ajan yalnızca güncel ve onaylı kaynağa bağlı bilgiyi paylaşmalı; doğrulayamadığı durumda danışmana yönlendirmelidir."),
+            ("gorusme-takibi", "Gösterim ve takip akışı", "Portaldan, siteden veya WhatsApp'tan gelen talepler aynı müşteri kaydında birleştirilebilir. Gösterim sonrası geri bildirim ve sonraki temas ekibin kontrolünde kalır."),
+        ],
+        "example": ("Örnek akış", "Bir alıcı ilan bağlantısıyla WhatsApp'tan yazar. Asistan ilanı ve aranan özellikleri netleştirir, gösterim için uygun zamanları toplar. Danışman ilan durumunu doğrular, randevuyu onaylar ve görüşme sonucunu CRM'e işler."),
+        "questions": [
+            ("Portaldan gelen talepler CRM'e aktarılabilir mi?", "Kullanılan portalın erişim ve entegrasyon olanakları incelendikten sonra uygun kayıt akışı tasarlanabilir."),
+            ("Asistan fiyat pazarlığı yapar mı?", "Pazarlık ve bağlayıcı teklifler danışmana bırakılır. Asistan talebi ve görüşme bağlamını düzenleyebilir."),
+        ],
+        "related": [("/ai-chatbot/", "AI Chatbot"), ("/akilli-crm/", "Akıllı CRM"), ("/ai-call-agent/", "AI Call Agent")],
+    },
+    "otomotiv": {
+        "category": "Sektörler / Otomotiv",
+        "title": "Otomotiv satışında yapay zekâ ile talep ve randevu takibi",
+        "summary": "Araç ilanı, web sitesi, telefon ve mesajlaşmadan gelen talepleri karşılayan; model ilgisini, test sürüşü isteğini ve satış takibini düzenleyen AI akışları.",
+        "lead": "Araç satın almak isteyen kişi stok, donanım, finansman seçenekleri veya takas hakkında farklı kanallardan soru sorabilir. Ajan ilk teması ve bilgi toplamayı destekler; güncel stok, fiyat ve satış koşulları yetkili ekip tarafından doğrulanır.",
+        "steps": [
+            ("İlgiyi belirler", "Araç, model veya ilan bilgisini ve müşterinin satın alma zamanlamasını kaydeder."),
+            ("Soruları ayırır", "Onaylı araç bilgisini paylaşır; stok, fiyat, takas ve finansman sorularını uygun uzmana yönlendirir."),
+            ("Takibi başlatır", "Test sürüşü veya görüşme talebini satış ekibine aktarır ve sonraki adımı CRM'de izlenebilir kılar."),
+        ],
+        "sections": [
+            ("stok-ve-fiyat", "Stok ve fiyat doğruluğu", "Araç müsaitliği, kampanya ve fiyatlar değişebilir. Canlı sistem bağlantısı yoksa ajan kesin teyit vermek yerine güncel bilgiyi satış temsilcisinden istemelidir."),
+            ("test-surusu", "Test sürüşünden satış görüşmesine", "Test sürüşü için tercih edilen model, lokasyon ve zaman toplanabilir. Randevu ancak bayi takvimi ve ekip onayıyla kesinleşir; görüşme sonucu aynı müşteri kaydında izlenir."),
+        ],
+        "example": ("Örnek akış", "Bir müşteri web sitesinde belirli bir model için test sürüşü ister. Asistan iletişim bilgisini ve uygun zamanını alır, talebi satış ekibine iletir. Temsilci stok ve takvimi doğrulayıp randevuyu kesinleştirir; takip görevi CRM'e kaydedilir."),
+        "questions": [
+            ("İkinci el araç ilanları için de kullanılabilir mi?", "Evet, ilan ve araç bilgilerinin güncel tutulduğu bir kaynak varsa ilk sorular ve görüşme talepleri için akış tasarlanabilir."),
+            ("Takas veya kredi teklifi oluşturur mu?", "Bu konularda bağlayıcı sonuç üretmez. İlgili bilgileri toplayıp yetkili satış veya finansman ekibine aktarabilir."),
+        ],
+        "related": [("/ai-call-agent/", "AI Call Agent"), ("/ai-chatbot/", "AI Chatbot"), ("/akilli-crm/", "Akıllı CRM")],
+    },
+}
+
+
+decision_sections = {
+    "ai-call-agent": [
+        ("Kurulumda hangi bilgiler gerekir?", "Önce çağrı türleri, sık sorulan sorular, mesai saatleri, yönlendirme kuralları ve kullanılacak telefon altyapısı belirlenir. Randevu veya CRM kaydı isteniyorsa takvim, alanlar ve erişim yetkileri ayrıca incelenir. Pilot akış, gerçek görüşmelerden seçilen örneklerle test edilmelidir."),
+        ("İnsana devir ve çıktı", "Ajan doğrulayamadığı bilgi, şikâyet veya özel teklif talebinde ilgili kişiye aktarım yapar. Ekip için beklenen çıktı; arama nedeni, toplanan iletişim bilgisi, kısa görüşme özeti ve açık sonraki adımdır. Kayıt ve aktarım kapsamı kurulumda kararlaştırılır."),
+    ],
+    "ai-chatbot": [
+        ("Web ve WhatsApp akışları nasıl ayrılır?", "Web sohbeti, ziyaretçinin baktığı sayfaya göre ürün veya hizmet sorusunu karşılayabilir. WhatsApp akışında işletme hesabı, kanal izinleri, mesaj kuralları ve ekip devri ayrıca planlanır. Her iki kanalda da onaylı bilgi kaynağı ve güncelleme sorumlusu tanımlanmalıdır."),
+        ("Satış ekibine ne aktarılır?", "Görüşmenin tamamı yerine talep konusu, kaynak kanal, müşterinin verdiği bilgiler ve cevaplanmamış soru özetlenebilir. Müşteri bir temsilci istediğinde veya konu bilgi kaynağını aştığında konuşma insan ekibe yönlendirilir. CRM bağlantısı varsa alan eşleştirmesi ve mükerrer kayıt kontrolü yapılır."),
+    ],
+    "akilli-crm": [
+        ("Mevcut sistemle başlangıç", "Önce müşteri, şirket, fırsat ve görev kayıtlarının nerede tutulduğu belirlenir. Form, telefon ve sohbetten gelen aynı kişiyi tanımak için alan eşleştirmesi yapılır. Yazma yetkisi verilmeden önce örnek kayıtlar ve hatalı veri senaryoları birlikte gözden geçirilir."),
+        ("Örnek takip çıktısı", "Bir talep için kaynak, ihtiyaç, görüşme özeti, sorumlu kişi ve takip tarihi tek kayıtta görülebilir. Otomasyon eksik bilgiyi işaretleyebilir; öncelik puanı ve satış kararı şirketin ölçütlerine göre insan tarafından doğrulanmalıdır."),
+    ],
+    "ai-satis-ajani": [
+        ("Ajanın yetki sınırı", "Şirket araştırması, talep özeti ve takip önerisi otomatik hazırlanabilir. Dışarı gönderilen kişiselleştirilmiş mesaj, indirim, taahhüt veya teklif için insan onayı gerekecek noktalar ayrıca tanımlanır. Kaynakların doğruluğu ve eski kayıtların temizliği sonucun kalitesini belirler."),
+        ("Pilot nasıl ölçülür?", "İlk pilotta nitelikli talep tanımı, görüşmeye dönüşen aday ve satış temsilcisinin düzeltme ihtiyacı izlenir. Yalnızca üretilen mesaj veya lead sayısına bakmak, satışa katkıyı göstermez. CRM'deki fırsat aşamaları pilot öncesinde netleştirilmelidir."),
+    ],
+    "b2b-outreach": [
+        ("Araştırmadan ilk temasa", "Hedef sektör, şirket ölçeği, bölge ve hariç tutulacak profiller birlikte tanımlanır. Her hedef için kamuya açık ve izinli kaynaklardan bir gerekçe hazırlanır; belirsiz şirket bilgisi otomatik mesajda kesin gerçek gibi kullanılmaz. Satış ekibi listeyi ve iletişim taslağını onaylar."),
+        ("İletişim ve ölçüm sınırları", "Kanal kuralları, veri kullanımı, durdurma koşulları ve yanıt geldiğinde insan devri planlanır. Yanıt oranına ek olarak olumlu yanıt, gerçekleşen toplantı ve nitelikli fırsat takip edilir. Aynı kişiye birden çok kanaldan çelişkili veya tekrarlı mesaj gitmesi engellenmelidir."),
+    ],
+    "otomasyonlar": [
+        ("Teslimat kapsamı nasıl belirlenir?", "Tetikleyici, kullanılan uygulamalar, okunacak ve yazılacak alanlar, hata bildirimi ve bakım sorumlusu başlangıçta yazılı hâle getirilir. Önce tek bir tekrarlı süreçte pilot yapılması, istisnaların görülmesini sağlar. Entegrasyon yetkileri ve veri akışı kurumun sistemlerine bağlıdır."),
+        ("Hata durumunda ne olur?", "Yanlış veya eksik veri, erişim kesintisi ve beklenmeyen yanıt için güvenli durma ve insan incelemesi adımları tanımlanır. Her işlemin sonucu izlenebilir olmalı; kritik kayıtların sessizce değişmesi önlenmelidir."),
+    ],
+    "saglik-turizmi": [
+        ("Çok dilli ilk temas", "Talebin dili, ülkesi, tercih ettiği iletişim kanalı ve operasyonel sorusu kaydedilebilir. Randevu, ulaşım ve süreç yanıtları yalnızca kurumun onayladığı bilgilere dayanır. Tıbbi uygunluk veya tedavi sonucuna ilişkin sorular yetkili klinik ekibe aktarılır."),
+    ],
+    "ihracat-uretim": [
+        ("Hedef araştırmasının doğrulanması", "Ülke, alıcı tipi ve ürün kullanımına göre şirketler araştırılabilir. Listenin güncelliği, kaynak bağlantıları ve satış ekibinin değerlendirmesi korunur; yalnızca şirket adı eşleşmesine bakılarak uygun müşteri kabul edilmez."),
+    ],
+    "b2b-hizmetler": [
+        ("Birden fazla karar verici", "İlk talepte şirket ihtiyacı, proje kapsamı ve zamanlama ayrı alanlarda tutulabilir. Görüşmeye farklı kişiler katıldığında rolleri ve karar konuları CRM kaydına eklenir. Teklif, kapsam ve pazarlık adımları insan ekibin kontrolünde kalır."),
+    ],
+    "emlak": [
+        ("Kurulum için gerekenler", "Güncel portföy kaynağı, ilan kimliği, danışman atama kuralı ve gösterim takvimi belirlenir. Portal entegrasyonu varsa izinleri incelenir; yoksa web formu ve mesajlaşma gibi mevcut kanallardan başlanabilir."),
+    ],
+    "otomotiv": [
+        ("Bayi sistemleriyle çalışma", "Araç kataloğu, stok kaynağı, lokasyon ve test sürüşü takvimi birlikte incelenir. Canlı bağlantısı olmayan stok veya kampanya bilgisi kesinleştirilmez. Görüşme sonrası teklif ve takas süreci satış temsilcisine bırakılır."),
+    ],
+}
+
+guide_links = {
+    "ai-call-agent": "ai-call-agent-nedir",
+    "ai-chatbot": "chatbot-ai-agent-canli-destek",
+    "akilli-crm": "telefon-crm-satis-takibi",
+    "ai-satis-ajani": "ai-sdr-nedir",
+    "b2b-outreach": "ai-sdr-nedir",
+    "otomasyonlar": "telefon-crm-satis-takibi",
+    "emlak": "emlak-yapay-zeka-asistani",
+    "otomotiv": "otomotiv-test-surusu-takibi",
 }
 
 
@@ -297,14 +433,22 @@ def page_body(data):
     sections = "".join(f'<section class="detail-section" id="{sid}"><div class="wrap detail-columns"><p class="eyebrow">{data["category"]}</p><div><h2>{heading}</h2><p>{copy}</p></div></div></section>' for sid, heading, copy in data["sections"])
     questions = "".join(f'<details><summary>{q}</summary><p>{a}</p></details>' for q, a in data["questions"])
     related = "".join(f'<a href="{href}">{label}<span aria-hidden="true">↗</span></a>' for href, label in data["related"])
+    slug = next(key for key, value in {**pages, **sectors}.items() if value is data)
+    decision = "".join(f'<section class="detail-section"><div class="wrap detail-columns"><p class="eyebrow">Karar rehberi</p><div><h2>{heading}</h2><p>{copy}</p></div></div></section>' for heading, copy in decision_sections.get(slug, []))
+    guide_slug = guide_links.get(slug)
+    guide_ref = f'<section class="guide-ref"><div class="wrap"><p class="eyebrow">Daha ayrıntılı okuyun</p><a href="/rehberler/{guide_slug}/">{GUIDES[guide_slug]["title"]} <span aria-hidden="true">↗</span></a></div></section>' if guide_slug else ""
     example_title, example_copy = data["example"]
+    contact = contact_link(data["category"].split(" / ")[-1] + " hakkında görüşme talebi")
     return f'''
     <section class="detail-hero"><div class="wrap"><a class="back-link" href="/">← Ana sayfa</a><p class="hero-kicker">{data["category"]}</p><h1>{data["title"]}</h1><p class="detail-summary">{data["summary"]}</p><a class="raiko-button raiko-button--shine" href="#is-akisi" aria-label="İş akışını gör"><span class="raiko-button__surface">İş akışını gör <span aria-hidden="true">↘</span></span></a></div></section>
     <section class="detail-lead"><div class="wrap detail-columns"><p class="eyebrow">Yaklaşım</p><p>{data["lead"]}</p></div></section>
     <section class="detail-process" id="is-akisi"><div class="wrap detail-columns"><div><p class="eyebrow">İş akışı</p><h2>Nasıl çalışır?</h2></div><ol>{steps}</ol></div></section>
     {sections}
+    {decision}
+    {guide_ref}
     <section class="example-band"><div class="wrap detail-columns"><p class="eyebrow">{example_title}</p><p>{example_copy}</p></div></section>
     <section class="detail-faq"><div class="wrap detail-columns"><div><p class="eyebrow">Sık sorulanlar</p><h2>Açık yanıtlar.</h2></div><div>{questions}</div></div></section>
+    <section class="contact-band"><div class="wrap detail-columns"><div><p class="eyebrow">Sonraki adım</p><h2>Kendi sürecinizi konuşalım.</h2></div><div><p>Mevcut iletişim kanallarınızı, kullandığınız sistemleri ve otomasyona uygun adımları birlikte değerlendirelim. İlk mesajınızda sektörünüzü ve çözmek istediğiniz sorunu yazmanız yeterli.</p><a class="raiko-button raiko-button--shine" href="{contact}"><span class="raiko-button__surface">Görüşme talep et <span aria-hidden="true">↗</span></span></a><p class="contact-fallback">E-posta uygulamanız açılmazsa <a href="mailto:info@raiko.ai">info@raiko.ai</a> adresine yazın.</p></div></div></section>
     <section class="related"><div class="wrap"><p class="eyebrow">İlgili çözümler</p><div>{related}</div></div></section>
     {footer(show_cta=True)}
     '''
@@ -318,14 +462,14 @@ def footer(show_cta=False):
       <div class="footer-cta-content">
         <div class="footer-status-pill">
           <span class="status-dot"></span>
-          <span>Tüm AI Sistemleri Aktif • 7/24 Kesintisiz Hizmet</span>
+          <span>İşletmenize özel yapay zekâ akışları</span>
         </div>
         <h3 class="footer-cta-title">Yapay zekâ çalışanlarınızla işinizi bir adım öne taşıyın.</h3>
         <p class="footer-cta-desc">Telefonları yanıtlayan, mesajları karşılayan ve CRM sürecini ilerleten sistemleri bugün hayata geçirin.</p>
       </div>
       <div class="footer-cta-actions">
-        <a class="raiko-button raiko-button--shine" href="/#cozumler" aria-label="Çözümleri keşfet">
-          <span class="raiko-button__surface">Çözümleri Keşfet <span aria-hidden="true">↗</span></span>
+        <a class="raiko-button raiko-button--shine" href="mailto:info@raiko.ai?subject=Raiko%20demo%20talebi" aria-label="Demo talep et">
+          <span class="raiko-button__surface">Demo talep et <span aria-hidden="true">↗</span></span>
         </a>
         <a class="footer-contact-link" href="mailto:info@raiko.ai">
           <span>info@raiko.ai</span>
@@ -339,7 +483,7 @@ def footer(show_cta=False):
         status_pill_home = '''
         <div class="footer-status-pill">
           <span class="status-dot"></span>
-          <span>Tüm AI Sistemleri Aktif • 7/24 Otonom Sistem</span>
+          <span>Şirketinize göre tasarlanan AI sistemleri</span>
         </div>'''
 
     return f'''<footer class="site-footer" role="contentinfo">
@@ -365,17 +509,6 @@ def footer(show_cta=False):
             <span>İstanbul, Türkiye</span>
           </div>
         </div>
-        <div class="footer-socials" aria-label="Sosyal Medya">
-          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="footer-social-btn" aria-label="LinkedIn (yeni sekme)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76a1.59 1.59 0 1 0 0-3.18 1.59 1.59 0 0 0 0 3.18m1.4 9.74v-8.37H5.06v8.37h2.8z"/></svg>
-          </a>
-          <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="footer-social-btn" aria-label="X / Twitter (yeni sekme)">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-          </a>
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="footer-social-btn" aria-label="GitHub (yeni sekme)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z"/></svg>
-          </a>
-        </div>
       </div>
 
       <div class="footer-col">
@@ -396,6 +529,8 @@ def footer(show_cta=False):
           <li><a href="/saglik-turizmi/">Sağlık Turizmi</a></li>
           <li><a href="/ihracat-uretim/">İhracat ve Üretim</a></li>
           <li><a href="/b2b-hizmetler/">B2B Hizmetler</a></li>
+          <li><a href="/emlak/">Emlak</a></li>
+          <li><a href="/otomotiv/">Otomotiv</a></li>
           <li><a href="/#kullanim">Müşteri Desteği</a></li>
           <li><a href="/#sistemler">Nasıl Çalışır?</a></li>
           <li><a href="/#sorular">Sık Sorulan Sorular</a></li>
@@ -406,10 +541,10 @@ def footer(show_cta=False):
         <p class="footer-heading">Kaynaklar</p>
         <ul class="footer-nav-list">
           <li><a href="/rehberler/">Tüm Rehberler</a></li>
-          <li><a href="/rehberler/#call-agent">AI Call Agent Nedir?</a></li>
-          <li><a href="/rehberler/#ai-sdr">AI SDR Satış Süreci</a></li>
-          <li><a href="/rehberler/#karsilastirma">Chatbot vs AI Agent</a></li>
-          <li><a href="/rehberler/#ornek-akis">Örnek Akış Modeli</a></li>
+          <li><a href="/rehberler/ai-call-agent-nedir/">AI Call Agent Nedir?</a></li>
+          <li><a href="/rehberler/ai-sdr-nedir/">AI SDR Satış Süreci</a></li>
+          <li><a href="/rehberler/chatbot-ai-agent-canli-destek/">Chatbot vs AI Agent</a></li>
+          <li><a href="/rehberler/telefon-crm-satis-takibi/">Örnek Akış Modeli</a></li>
           <li><a href="/#ust">Ekosistem Platformları</a></li>
         </ul>
       </div>
@@ -421,13 +556,6 @@ def footer(show_cta=False):
       <div class="footer-copy">
         <span>© <span class="year">2026</span> Raiko AI Technologies Inc. Tüm hakları saklıdır.</span>
       </div>
-      <div class="footer-legal">
-        <a href="/rehberler/">Gizlilik Politikası</a>
-        <span class="sep" aria-hidden="true">•</span>
-        <a href="/rehberler/">Kullanım Koşulları</a>
-        <span class="sep" aria-hidden="true">•</span>
-        <a href="/rehberler/">KVKK</a>
-      </div>
       <a class="footer-back-to-top" href="#ust" aria-label="Sayfanın başına dön">
         <span>Başa dön</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>
@@ -438,14 +566,24 @@ def footer(show_cta=False):
 
 
 def resources_body():
-    return '''
-    <section class="detail-hero resource-hero"><div class="wrap"><a class="back-link" href="/">← Ana sayfa</a><p class="hero-kicker">Kaynaklar / Rehberler</p><h1>Doğru sistemi seçmek için açık rehberler.</h1><p class="detail-summary">Yapay zekâ çalışanları, satış otomasyonu ve müşteri iletişimi hakkında temel karar noktaları.</p></div></section>
-    <section class="resource-index"><div class="wrap"><a href="#call-agent">AI Call Agent nedir? ↗</a><a href="#ai-sdr">AI SDR nedir? ↗</a><a href="#karsilastirma">Hangi çözüm ne yapar? ↗</a><a href="#ornek-akis">Örnek akış ↗</a></div></section>
-    <article class="resource-article" id="call-agent"><div class="wrap detail-columns"><p class="eyebrow">01 / Sesli ajan</p><div><h2>AI Call Agent nedir?</h2><p>AI Call Agent, telefon görüşmesini doğal dilde yürüten ve belirli iş adımlarına bağlanan sesli yapay zekâ ajanıdır. Gelen çağrıları karşılamak, sık soruları yanıtlamak ve talebi doğru ekibe aktarmak için kullanılabilir.</p><p>Kurulumda üç konu nettir: hangi bilgi kaynakları kullanılacak, ajan hangi işlemleri yapabilecek ve ne zaman insana devredecek? Görüşme kalitesi yalnızca ses teknolojisine değil, bu sınırların doğru tasarlanmasına da bağlıdır.</p><a class="text-link" href="/ai-call-agent/">AI Call Agent çözümünü incele <span aria-hidden="true">↗</span></a></div></div></article>
-    <article class="resource-article" id="ai-sdr"><div class="wrap detail-columns"><p class="eyebrow">02 / Satış</p><div><h2>AI SDR nedir?</h2><p>AI SDR, satış geliştirme ekibinin araştırma, lead nitelendirme ve takip hazırlığı gibi adımlarında kullanılan yapay zekâ akışıdır. Hedef müşteriye ilişkin bağlamı toplar ve satış temsilcisine daha düzenli bir başlangıç sağlar.</p><p>İnsan onayı, özellikle dış iletişim ve teklif gibi önemli noktalarda korunmalıdır. Satış performansını değerlendirirken yalnızca gönderilen mesaj sayısına değil, nitelikli görüşme ve fırsat kalitesine bakmak gerekir.</p><a class="text-link" href="/ai-satis-ajani/">AI Satış Ajanını incele <span aria-hidden="true">↗</span></a></div></div></article>
-    <article class="resource-article" id="karsilastirma"><div class="wrap detail-columns"><p class="eyebrow">03 / Karşılaştırma</p><div><h2>Chatbot, AI agent ve canlı destek arasındaki fark</h2><p>Chatbot konuşma kanalında soruları yanıtlar. AI agent, izin verilen araçları kullanarak bir iş adımını da başlatabilir. Canlı destek ise belirsiz, hassas veya ilişki yönetimi gerektiren görüşmelerde insan kararını sağlar.</p><p>En iyi kurgu çoğu zaman bu üç rolü netleştirir: otomasyon tekrar eden işi alır, insan ekip gerekli bağlamla devreye girer.</p><a class="text-link" href="/ai-chatbot/">AI Chatbot çözümünü incele <span aria-hidden="true">↗</span></a></div></div></article>
-    <article class="resource-article" id="ornek-akis"><div class="wrap detail-columns"><p class="eyebrow">04 / Kullanım senaryosu</p><div><h2>Telefon, CRM ve satış takibi nasıl birleşir?</h2><p>Bir müşteri arar ve hizmet hakkında bilgi ister. Sesli ajan soruyu karşılar, ihtiyacı netleştirir ve görüşme özetini uygun CRM kaydına taşır. Satış ekibi talebi inceleyip bir sonraki görüşmeyi planlar.</p><p>Bu örnek, tüm adımların otomatik olması gerektiği anlamına gelmez. Kayıt izinleri, entegrasyonlar ve insan devri gerçek iş sürecine göre belirlenir.</p><a class="text-link" href="/akilli-crm/">Akıllı CRM çözümünü incele <span aria-hidden="true">↗</span></a></div></div></article>
-    ''' + footer(show_cta=True)
+    articles = "".join(
+        f'<article class="resource-article"><div class="wrap detail-columns"><p class="eyebrow">{i:02d} / Rehber</p><div><h2><a href="/rehberler/{slug}/">{guide["title"]}</a></h2><p>{guide["description"]}</p><a class="text-link" href="/rehberler/{slug}/">Rehberi oku <span aria-hidden="true">↗</span></a></div></div></article>'
+        for i, (slug, guide) in enumerate(GUIDES.items(), 1)
+    )
+    return '''<section class="detail-hero resource-hero"><div class="wrap"><a class="back-link" href="/">← Ana sayfa</a><p class="hero-kicker">Kaynaklar / Rehberler</p><h1>Doğru sistemi seçmek için açık rehberler.</h1><p class="detail-summary">Çağrı ajanı, AI SDR, chatbot, CRM ve sektör akışları hakkında örneklerle hazırlanmış karar rehberleri.</p></div></section>''' + articles + footer(show_cta=True)
+
+
+def guide_body(guide):
+    sections = "".join(
+        f'<section class="resource-article"><div class="wrap detail-columns"><p class="eyebrow">Rehber</p><div><h2>{heading}</h2><p>{copy}</p></div></div></section>'
+        for heading, copy in guide["sections"]
+    )
+    related = "".join(f'<a href="{href}">{label}<span aria-hidden="true">↗</span></a>' for href, label in guide["related"])
+    return f'''<section class="detail-hero resource-hero"><div class="wrap"><a class="back-link" href="/rehberler/">← Tüm rehberler</a><p class="hero-kicker">Raiko / Rehber</p><h1>{guide["title"]}</h1><p class="detail-summary">{guide["description"]}</p></div></section>
+    <section class="detail-lead"><div class="wrap detail-columns"><p class="eyebrow">Kısa yanıt</p><p>{guide["intro"]}</p></div></section>
+    {sections}
+    <section class="related"><div class="wrap"><p class="eyebrow">İlgili çözümler</p><div>{related}</div></div></section>
+    {footer(show_cta=True)}'''
 
 
 ai_platforms = [
@@ -503,6 +641,7 @@ def main():
     DIST.mkdir(exist_ok=True)
     (DIST / "style.css").write_text((SRC / "style.css").read_text(encoding="utf-8"), encoding="utf-8")
     (DIST / "site.js").write_text((SRC / "site.js").read_text(encoding="utf-8"), encoding="utf-8")
+    (DIST / "social-card.png").write_bytes((SRC / "social-card.png").read_bytes())
     home = (SRC / "home.html").read_text(encoding="utf-8").replace("{{AI_SLIDER}}", ai_slider()).replace("{{FOOTER}}", footer(show_cta=False))
     (DIST / "index.html").write_text(shell(
         "Raiko | Yapay zekâ çalışanları ve otonom satış sistemleri",
@@ -521,6 +660,20 @@ def main():
         "AI Call Agent, AI SDR, chatbot ve CRM süreçleri hakkında anlaşılır rehberler ve örnek iş akışları.",
         resources_body(), "/rehberler/"
     ), encoding="utf-8")
+    for slug, guide in GUIDES.items():
+        guide_dir = directory / slug
+        guide_dir.mkdir(exist_ok=True)
+        (guide_dir / "index.html").write_text(shell(
+            guide["title"] + " | Raiko", guide["description"], guide_body(guide),
+            f"/rehberler/{slug}/"
+        ), encoding="utf-8")
+
+    paths = ["/", *(f"/{slug}/" for slug in {**pages, **sectors}), "/rehberler/", *(f"/rehberler/{slug}/" for slug in GUIDES)]
+    sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    sitemap += "".join(f"  <url><loc>{xml_escape(SITE_URL + path)}</loc></url>\n" for path in paths)
+    sitemap += "</urlset>\n"
+    (DIST / "sitemap.xml").write_text(sitemap, encoding="utf-8")
+    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
