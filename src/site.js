@@ -76,3 +76,52 @@ if (heroScene) {
   loadHero();
   interactiveScene.addEventListener('change', loadHero);
 }
+
+/* ── Contact form handler ──────────────────────────────── */
+for (const form of document.querySelectorAll('.raiko-form')) {
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = (form.querySelector('[name="name"]')?.value || '').trim();
+    const email = (form.querySelector('[name="email"]')?.value || '').trim();
+    const company = (form.querySelector('[name="company"]')?.value || '').trim();
+    const message = (form.querySelector('[name="message"]')?.value || '').trim();
+    const topic = form.dataset.topic || 'Raiko demo talebi';
+
+    if (!name || !email || !message) {
+      const missingFields = [];
+      if (!name) missingFields.push('Adınız');
+      if (!email) missingFields.push('E-posta adresiniz');
+      if (!message) missingFields.push('Mesajınız');
+      alert('Lütfen şu alanları doldurun: ' + missingFields.join(', '));
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert('Lütfen geçerli bir e-posta adresi girin.');
+      return;
+    }
+
+    const subject = encodeURIComponent(topic + ' hakkında görüşme talebi');
+    const body = encodeURIComponent(
+      'Ad: ' + name + '\n' +
+      'E-posta: ' + email + '\n' +
+      (company ? 'Şirket/Sektör: ' + company + '\n' : '') +
+      '\nMesaj:\n' + message
+    );
+
+    const btn = form.querySelector('.raiko-submit');
+    if (btn) btn.disabled = true;
+
+    window.location.href = 'mailto:info@raiko.tech?subject=' + subject + '&body=' + body;
+
+    setTimeout(() => {
+      const successEl = form.querySelector('.raiko-form-success');
+      if (successEl) successEl.hidden = false;
+      form.querySelectorAll('.raiko-field').forEach(f => { f.style.display = 'none'; });
+      if (btn) btn.style.display = 'none';
+      const note = form.querySelector('.raiko-form-note');
+      if (note) note.style.display = 'none';
+    }, 600);
+  });
+}
