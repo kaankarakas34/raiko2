@@ -79,49 +79,77 @@ if (heroScene) {
 
 /* ── Contact form handler ──────────────────────────────── */
 for (const form of document.querySelectorAll('.raiko-form')) {
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const name = (form.querySelector('[name="name"]')?.value || '').trim();
-    const email = (form.querySelector('[name="email"]')?.value || '').trim();
-    const company = (form.querySelector('[name="company"]')?.value || '').trim();
-    const message = (form.querySelector('[name="message"]')?.value || '').trim();
-    const topic = form.dataset.topic || 'Raiko demo talebi';
+    const nameEl = form.querySelector('[name="name"]');
+    const emailEl = form.querySelector('[name="email"]');
+    const companyEl = form.querySelector('[name="company"]');
+    const messageEl = form.querySelector('[name="message"]');
+    const btn = form.querySelector('.raiko-submit');
+    const btnText = form.querySelector('.raiko-submit-text');
+    const successEl = form.querySelector('.raiko-form-success');
+    const errorEl = form.querySelector('.raiko-form-error');
+    const errorText = form.querySelector('.raiko-form-error-text');
+
+    if (errorEl) errorEl.hidden = true;
+
+    const name = (nameEl?.value || '').trim();
+    const email = (emailEl?.value || '').trim();
+    const company = (companyEl?.value || '').trim();
+    const message = (messageEl?.value || '').trim();
+    const topic = form.dataset.topic || 'Raiko Görüşme Talebi';
+
+    const showError = (msg) => {
+      if (errorEl && errorText) {
+        errorText.textContent = msg;
+        errorEl.hidden = false;
+      } else {
+        alert(msg);
+      }
+    };
 
     if (!name || !email || !message) {
-      const missingFields = [];
-      if (!name) missingFields.push('Adınız');
-      if (!email) missingFields.push('E-posta adresiniz');
-      if (!message) missingFields.push('Mesajınız');
-      alert('Lütfen şu alanları doldurun: ' + missingFields.join(', '));
+      showError('Lütfen adınızı, e-posta adresinizi ve mesajınızı doldurun.');
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      alert('Lütfen geçerli bir e-posta adresi girin.');
+      showError('Lütfen geçerli bir e-posta adresi girin.');
       return;
     }
 
-    const subject = encodeURIComponent(topic + ' hakkında görüşme talebi');
-    const body = encodeURIComponent(
-      'Ad: ' + name + '\n' +
-      'E-posta: ' + email + '\n' +
-      (company ? 'Şirket/Sektör: ' + company + '\n' : '') +
-      '\nMesaj:\n' + message
-    );
-
-    const btn = form.querySelector('.raiko-submit');
+    const originalBtnText = btnText ? btnText.textContent : 'Mesaj gönder';
     if (btn) btn.disabled = true;
+    if (btnText) btnText.textContent = 'İletiliyor...';
 
-    window.location.href = 'mailto:info@raiko.tech?subject=' + subject + '&body=' + body;
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ name, email, company, message, topic }),
+      });
 
-    setTimeout(() => {
-      const successEl = form.querySelector('.raiko-form-success');
-      if (successEl) successEl.hidden = false;
-      form.querySelectorAll('.raiko-field').forEach(f => { f.style.display = 'none'; });
-      if (btn) btn.style.display = 'none';
-      const note = form.querySelector('.raiko-form-note');
-      if (note) note.style.display = 'none';
-    }, 600);
+      const data = await response.json().catch(() => ({}));
+
+      if (response.ok && data.success) {
+        if (successEl) successEl.hidden = false;
+        form.querySelectorAll('.raiko-field').forEach((f) => { f.style.display = 'none'; });
+        if (btn) btn.style.display = 'none';
+        const note = form.querySelector('.raiko-form-note');
+        if (note) note.style.display = 'none';
+        form.reset();
+      } else {
+        throw new Error(data.error || 'İletim sırasında bir sorun oluştu.');
+      }
+    } catch (err) {
+      console.error('Form submission error:', err);
+      showError(err.message || 'Mesaj iletilemedi. Lütfen info@raiko.tech adresine doğrudan yazın.');
+      if (btn) btn.disabled = false;
+      if (btnText) btnText.textContent = originalBtnText;
+    }
   });
 }
