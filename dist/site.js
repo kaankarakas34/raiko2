@@ -79,6 +79,17 @@ if (heroScene) {
 
 /* ── Contact form handler ──────────────────────────────── */
 for (const form of document.querySelectorAll('.raiko-form')) {
+  const checkbox = form.querySelector('[name="want_meeting"]');
+  const btnText = form.querySelector('.raiko-submit-text');
+
+  if (checkbox && btnText) {
+    checkbox.addEventListener('change', () => {
+      btnText.textContent = checkbox.checked
+        ? 'Mesajı Gönder & Toplantı Saati Seç'
+        : 'Mesaj gönder';
+    });
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const nameEl = form.querySelector('[name="name"]');
@@ -86,8 +97,9 @@ for (const form of document.querySelectorAll('.raiko-form')) {
     const companyEl = form.querySelector('[name="company"]');
     const messageEl = form.querySelector('[name="message"]');
     const btn = form.querySelector('.raiko-submit');
-    const btnText = form.querySelector('.raiko-submit-text');
+    const submitText = form.querySelector('.raiko-submit-text');
     const successEl = form.querySelector('.raiko-form-success');
+    const calBlock = form.querySelector('.raiko-success-cal');
     const errorEl = form.querySelector('.raiko-form-error');
     const errorText = form.querySelector('.raiko-form-error-text');
 
@@ -97,6 +109,7 @@ for (const form of document.querySelectorAll('.raiko-form')) {
     const email = (emailEl?.value || '').trim();
     const company = (companyEl?.value || '').trim();
     const message = (messageEl?.value || '').trim();
+    const wantMeeting = Boolean(checkbox && checkbox.checked);
     const topic = form.dataset.topic || 'Raiko Görüşme Talebi';
 
     const showError = (msg) => {
@@ -119,9 +132,9 @@ for (const form of document.querySelectorAll('.raiko-form')) {
       return;
     }
 
-    const originalBtnText = btnText ? btnText.textContent : 'Mesaj gönder';
+    const originalBtnText = submitText ? submitText.textContent : 'Mesaj gönder';
     if (btn) btn.disabled = true;
-    if (btnText) btnText.textContent = 'İletiliyor...';
+    if (submitText) submitText.textContent = 'İletiliyor...';
 
     try {
       const response = await fetch('/api/contact', {
@@ -130,17 +143,69 @@ for (const form of document.querySelectorAll('.raiko-form')) {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: JSON.stringify({ name, email, company, message, topic }),
+        body: JSON.stringify({
+          name,
+          email,
+          company,
+          message,
+          topic,
+          want_meeting: wantMeeting,
+        }),
       });
 
       const data = await response.json().catch(() => ({}));
 
       if (response.ok && data.success) {
         if (successEl) successEl.hidden = false;
-        form.querySelectorAll('.raiko-field').forEach((f) => { f.style.display = 'none'; });
+        form.querySelectorAll('.raiko-field, .raiko-field-checkbox').forEach((f) => {
+          f.style.display = 'none';
+        });
         if (btn) btn.style.display = 'none';
         const note = form.querySelector('.raiko-form-note');
         if (note) note.style.display = 'none';
+
+        // Sadece toplantı seçilmişse Cal.com takvimi açılsın ve butonu gösterilsin
+        if (wantMeeting) {
+          if (calBlock) {
+            calBlock.hidden = false;
+            const embedWrap = calBlock.querySelector('.raiko-cal-embed-wrap');
+            const inlineBox = calBlock.querySelector('.cal-inline-box');
+            if (embedWrap && inlineBox) {
+              embedWrap.hidden = false;
+              if (!inlineBox.dataset.loaded) {
+                inlineBox.dataset.loaded = 'true';
+                inlineBox.id = 'cal-inline-' + Math.random().toString(36).substring(2, 8);
+                try {
+                  Cal.ns['30min']('inline', {
+                    elementOrSelector: '#' + inlineBox.id,
+                    config: {
+                      layout: 'month_view',
+                      useSlotsViewOnSmallScreen: 'true',
+                      name: name,
+                      email: email,
+                      notes: message + (company ? ' | Şirket: ' + company : ''),
+                    },
+                    calLink: 'raiko-ai-tech/30min',
+                  });
+                  Cal.ns['30min']('ui', {
+                    theme: 'dark',
+                    styles: { branding: { brandColor: '#ffc400' } },
+                    hideEventTypeDetails: false,
+                    layout: 'month_view',
+                  });
+                } catch (errCal) {
+                  console.warn('Cal inline embed error:', errCal);
+                }
+              }
+              setTimeout(() => {
+                embedWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              }, 200);
+            }
+          }
+        } else {
+          if (calBlock) calBlock.hidden = true;
+        }
+
         form.reset();
       } else {
         throw new Error(data.error || 'İletim sırasında bir sorun oluştu.');
@@ -149,7 +214,54 @@ for (const form of document.querySelectorAll('.raiko-form')) {
       console.error('Form submission error:', err);
       showError(err.message || 'Mesaj iletilemedi. Lütfen info@raiko.tech adresine doğrudan yazın.');
       if (btn) btn.disabled = false;
-      if (btnText) btnText.textContent = originalBtnText;
+      if (submitText) submitText.textContent = originalBtnText;
+    }
+  });
+}
+
+/* ── Cal.com Embed Loader ──────────────────────────────── */
+(function (C, A, L) {
+  let p = function (a, ar) { a.q.push(ar); };
+  let d = C.document;
+  C.Cal = C.Cal || function () {
+    let cal = C.Cal;
+    let ar = arguments;
+    if (!cal.loaded) {
+      cal.ns = {};
+      cal.q = cal.q || [];
+      const s = d.createElement('script');
+      s.src = A;
+      s.async = true;
+      d.head.appendChild(s);
+      cal.loaded = true;
+    }
+    if (ar[0] === L) {
+      const api = function () { p(api, arguments); };
+      const namespace = ar[1];
+      api.q = api.q || [];
+      if (typeof namespace === 'string') {
+        cal.ns[namespace] = cal.ns[namespace] || api;
+        p(cal.ns[namespace], ar);
+        p(cal, ['initNamespace', namespace]);
+      } else p(cal, ar);
+      return;
+    }
+    p(cal, ar);
+  };
+})(window, 'https://app.cal.com/embed/embed.js', 'init');
+
+Cal('init', '30min', { origin: 'https://app.cal.com' });
+Cal.config = Cal.config || {};
+Cal.config.forwardQueryParams = true;
+
+for (const calBtn of document.querySelectorAll('.raiko-cal-open-btn')) {
+  calBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    const parentCal = calBtn.closest('.raiko-success-cal');
+    const embedWrap = parentCal?.querySelector('.raiko-cal-embed-wrap');
+    if (embedWrap) {
+      embedWrap.hidden = false;
+      embedWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   });
 }

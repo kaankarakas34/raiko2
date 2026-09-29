@@ -67,6 +67,20 @@
           <textarea class="raiko-input raiko-textarea" id="rf-message" name="message" required placeholder=" " rows="4"></textarea>
           <label class="raiko-label" for="rf-message">Ne hakkında görüşmek istersiniz?</label>
         </div>
+
+        <div class="raiko-field-checkbox">
+          <label class="raiko-check-container">
+            <input type="checkbox" name="want_meeting" class="raiko-checkbox-input">
+            <span class="raiko-custom-checkbox">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            <span class="raiko-check-label">
+              <strong>Toplantı planlamak istiyorum</strong>
+              <small>Gönderdikten sonra hemen gün ve saat seçin</small>
+            </span>
+          </label>
+        </div>
+
         <button class="raiko-submit" type="submit">
           <span class="raiko-submit-text">Mesaj gönder</span>
           <span class="raiko-submit-arrow" aria-hidden="true">
@@ -74,13 +88,29 @@
           </span>
         </button>
         <p class="raiko-form-note">veya doğrudan yazın: <a href="mailto:info@raiko.tech">info@raiko.tech</a></p>
+        
         <div class="raiko-form-error" hidden>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           <span class="raiko-form-error-text">Bir hata oluştu.</span>
         </div>
+        
         <div class="raiko-form-success" hidden>
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="20 6 9 17 4 12"/></svg>
-          <p>Mesajınız iletildi! Ekibimiz en kısa sürede sizinle iletişime geçecektir.</p>
+          <div class="raiko-success-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="raiko-success-content">
+            <h4 class="raiko-success-title">Mesajınız başarıyla iletildi!</h4>
+            <p class="raiko-success-desc">Ekibimiz en kısa sürede sizinle iletişime geçecektir.</p>
+            <div class="raiko-success-cal" hidden>
+              <p class="raiko-cal-hint">Toplantı saatinizi hemen aşağıdan seçebilirsiniz:</p>
+              <button type="button" class="raiko-cal-open-btn">
+                <span>📅 30 dk Tanıtım Toplantısı Seç ↗</span>
+              </button>
+              <div class="raiko-cal-embed-wrap" style="width:100%;height:600px;overflow:auto;border-radius:14px;border:1px solid #33332c;margin-top:16px;background:#181814;" hidden>
+                <div class="cal-inline-box" style="width:100%;height:100%;overflow:scroll;"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </form>
     </div>

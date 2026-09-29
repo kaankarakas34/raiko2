@@ -48,7 +48,7 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    const { name, email, company, message, topic } = body || {};
+    const { name, email, company, message, topic, want_meeting } = body || {};
 
     if (!name || !email || !message) {
       return res.status(400).json({ error: 'Lütfen zorunlu alanları doldurun (İsim, E-posta, Mesaj).' });
@@ -61,21 +61,23 @@ module.exports = async function handler(req, res) {
     });
 
     const leadTopic = topic ? `[${topic}] ` : '';
-    const subject = `Yeni Lead: ${leadTopic}${name} ${company ? `(${company})` : ''}`.trim();
+    const meetingTag = want_meeting ? '📅 [TOPLANTI TALEBİ] ' : '';
+    const subject = `${meetingTag}Yeni Lead: ${leadTopic}${name} ${company ? `(${company})` : ''}`.trim();
 
     const textContent = `
-Yeni Lead Bildirimi
+${want_meeting ? '*** DİKKAT: MÜŞTERİ HEMEN TOPLANTI / DEMO PLANLAMAK İSTEDİ ***\n' : ''}Yeni Lead Bildirimi
 ------------------------------------------------
 Ad Soyad : ${name}
 E-posta  : ${email}
 Şirket   : ${company || '-'}
 Sayfa/Konu: ${topic || 'Genel'}
+Toplantı İsteği: ${want_meeting ? 'EVET (Takvim açıldı)' : 'HAYIR (Sadece mesaj)'}
 Tarih    : ${dateStr}
 
 Mesaj:
 ${message}
 ------------------------------------------------
-Bu mesaj www.raiko.tech iletişim formu üzerinden otomatik iletilmiştir.
+Bu mesaj www.raiko.tech iletişim formu üzerinden iletilmiştir.
 `;
 
     const htmlContent = `
@@ -90,6 +92,7 @@ Bu mesaj www.raiko.tech iletişim formu üzerinden otomatik iletilmiştir.
     .header h2 { margin: 0; font-size: 20px; font-weight: 700; color: #ffc400; }
     .header p { margin: 4px 0 0; font-size: 13px; color: #a2a29a; }
     .content { padding: 28px; }
+    .meeting-badge { background: #fff8e1; border: 1.5px solid #ffc400; color: #855500; border-radius: 8px; padding: 12px 16px; font-size: 14px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
     .item { margin-bottom: 16px; }
     .item-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #79796e; font-weight: 700; margin-bottom: 4px; }
     .item-value { font-size: 15px; color: #11110f; font-weight: 500; }
@@ -102,9 +105,14 @@ Bu mesaj www.raiko.tech iletişim formu üzerinden otomatik iletilmiştir.
   <div class="card">
     <div class="header">
       <h2>🚀 Yeni Lead Bildirimi</h2>
-      <p>Raiko web sitesi üzerinden yeni bir görüşme talebi alındı</p>
+      <p>Raiko web sitesi üzerinden yeni bir talep alındı</p>
     </div>
     <div class="content">
+      ${want_meeting ? `
+      <div class="meeting-badge">
+        <span>📅</span>
+        <span>MÜŞTERİ HEMEN TOPLANTI SAATİ SEÇMEK İSTEDİ (Cal.com ekranı açıldı)</span>
+      </div>` : ''}
       <div class="item">
         <div class="item-label">Ad Soyad</div>
         <div class="item-value">${name}</div>
@@ -123,6 +131,10 @@ Bu mesaj www.raiko.tech iletişim formu üzerinden otomatik iletilmiştir.
         <div class="item-label">İlgili Konu / Sayfa</div>
         <div class="item-value">${topic}</div>
       </div>` : ''}
+      <div class="item">
+        <div class="item-label">Toplantı Tercihi</div>
+        <div class="item-value">${want_meeting ? '<strong>Evet, toplantı planlamak istiyor</strong>' : 'Sadece mesaj iletildi'}</div>
+      </div>
       <div class="item">
         <div class="item-label">Tarih</div>
         <div class="item-value">${dateStr}</div>

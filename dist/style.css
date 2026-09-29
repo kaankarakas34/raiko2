@@ -324,9 +324,31 @@
     .raiko-form-note{font-size:13px;color:#5c5b55;text-align:center;margin:4px 0 0}
     .raiko-form-note a{color:#9a9990;text-decoration:underline;text-underline-offset:4px;transition:color .18s}
     .raiko-form-note a:hover{color:var(--yellow)}
-    .raiko-form-success{display:flex;align-items:center;gap:16px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:20px 22px;color:#4ade80;font-size:15px;font-weight:600;margin-top:8px}
-    .raiko-form-success svg{flex-shrink:0;color:#4ade80}
-    .raiko-form-success p{margin:0}
+    /* Checkbox toggle */
+    .raiko-field-checkbox{margin:4px 0 2px}
+    .raiko-check-container{display:flex;align-items:flex-start;gap:14px;cursor:pointer;user-select:none;padding:12px 14px;background:#141411;border:1px solid #2a2a24;border-radius:12px;transition:border-color .2s,background .2s}
+    .raiko-check-container:hover{border-color:rgba(255,196,0,.4);background:#1a1a16}
+    .raiko-checkbox-input{position:absolute;opacity:0;cursor:pointer;height:0;width:0}
+    .raiko-custom-checkbox{width:22px;height:22px;background:#1e1e1a;border:1.5px solid #44443c;border-radius:6px;display:flex;align-items:center;justify-content:center;color:transparent;transition:all .2s;flex-shrink:0;margin-top:2px}
+    .raiko-checkbox-input:checked ~ .raiko-custom-checkbox{background:var(--yellow);border-color:var(--yellow);color:var(--ink)}
+    .raiko-checkbox-input:focus-visible ~ .raiko-custom-checkbox{outline:2px solid var(--yellow);outline-offset:2px}
+    .raiko-check-label{display:flex;flex-direction:column;gap:3px}
+    .raiko-check-label strong{font-size:14.5px;color:var(--paper);font-weight:600}
+    .raiko-check-label small{font-size:12.5px;color:#8e8d83;font-weight:400}
+    .raiko-checkbox-input:checked ~ .raiko-check-label strong{color:var(--yellow)}
+
+    /* Success box with Cal button */
+    .raiko-form-success{display:flex;align-items:flex-start;gap:18px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.25);border-radius:14px;padding:24px;color:#4ade80;margin-top:8px}
+    .raiko-success-icon svg{flex-shrink:0;color:#4ade80}
+    .raiko-success-content{flex:1}
+    .raiko-success-title{margin:0 0 6px;font-size:17px;font-weight:700;color:var(--paper)}
+    .raiko-success-desc{margin:0;font-size:14px;color:#9d9c92;line-height:1.5}
+    .raiko-success-cal{margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)}
+    .raiko-cal-hint{margin:0 0 12px;font-size:13.5px;color:#c8c7bc}
+    .raiko-cal-open-btn{display:inline-flex;align-items:center;gap:10px;padding:12px 24px;background:var(--yellow);color:var(--ink);border:none;border-radius:999px;font-family:var(--body);font-size:14.5px;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 16px rgba(255,196,0,.25)}
+    .raiko-cal-open-btn:hover{transform:scale(1.03);box-shadow:0 6px 22px rgba(255,196,0,.4)}
+    .raiko-cal-open-btn:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
+
     .raiko-form-error{display:flex;align-items:center;gap:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:14px 18px;color:#f87171;font-size:14px;font-weight:600;margin-top:8px}
     .raiko-form-error svg{flex-shrink:0;color:#f87171}
 
